@@ -99,7 +99,7 @@ export default function Home() {
   const totalPrice = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 
   const confirmSubmit = async () => {
-    if (!employee) { setPopup("กรุณาเลือกชื่อผู้เบิก"); return; }
+    if (!employee) { setPopup("เลือกผู้จัดออเดอร์"); return; }
     setSending(true);
     
     // รูปแบบรายการอาหาร: "เมนู A x 1, เมนู B x 2"

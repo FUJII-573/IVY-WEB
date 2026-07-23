@@ -4,11 +4,10 @@ import react from "@vitejs/plugin-react";
 import path from "node:path";
 import { defineConfig } from "vite";
 
-
-
 const plugins = [react(), tailwindcss(), jsxLocPlugin()];
 
 export default defineConfig({
+  base: "/IVY-WEB/",
   plugins,
   resolve: {
     alias: {
@@ -27,7 +26,6 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: [
-
       "localhost",
       "127.0.0.1",
     ],

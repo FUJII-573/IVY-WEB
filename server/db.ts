@@ -2,7 +2,7 @@ import { requisitions, InsertRequisition } from "../drizzle/schema";
 // Mock db object to prevent crash if not connected
 const db = { insert: () => ({ values: () => [ { insertId: Date.now() } ] }) } as any;
 
-const GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwzxbm39vdshiMSNr1RiEuuSdjkQ60xe6vjqJzpcfzL2QEWDjiJeyX5183-XCfAd2_lJA/exec";
+const GOOGLE_SHEETS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycby38skPqEuxtsuthw8h_2ehrce30i-KKlIOonhjWcSiqqPCnWEINkmv5bcKj1LT-EUxaw/exec";
 
 export async function createRequisition(data: InsertRequisition & { employeeName: string, itemName: string }) {
   try {
@@ -22,29 +22,31 @@ export async function createRequisition(data: InsertRequisition & { employeeName
       console.error("DB Insert Error (Ignored for Sheets Sync):", dbErr);
     }
 
-    // 2. ส่งข้อมูลไปยัง Google Sheets (หัวใจสำคัญ)
+    // 2. ส่งข้อมูลไปยัง Google Sheets (แบบ JSON)
     if (GOOGLE_SHEETS_WEB_APP_URL) {
-      const params = new URLSearchParams();
-      params.append("action", "addRequisition");
-      params.append("name", data.employeeName);
-      params.append("order", data.itemName); // รายการอาหารที่รวมมาแล้ว
-      params.append("note", data.note || "-");
-      params.append("total", data.quantity.toString());
+      const payload = {
+        action: "addRequisition",
+        name: data.employeeName,
+        order: data.itemName, // รายการอาหารที่รวมมาแล้ว
+        note: data.note || "-",
+        total: data.quantity.toString()
+      };
 
-      console.log("Syncing to Sheets:", Object.fromEntries(params));
+      console.log("Syncing to Sheets:", payload);
 
-      // ส่งแบบไม่รอผลลัพธ์ (Non-blocking) เพื่อความเร็วหน้าเว็บ
+      // ส่งแบบ Non-blocking (ไม่ต้องรอให้ Sheet ตอบกลับ หน้าเว็บจะได้ไม่ค้าง)
       fetch(GOOGLE_SHEETS_WEB_APP_URL, {
         method: "POST",
-        mode: "no-cors",
-        body: params
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload)
       }).catch(err => console.error("Google Sheets Sync Error:", err));
     }
 
     return { id: recordId, ...data };
   } catch (error) {
     console.error("Critical Error in createRequisition:", error);
-    // แม้จะพัง ก็คืนค่ากลับไปเพื่อให้หน้าเว็บแสดงผลสำเร็จได้ (Optimistic)
     return { id: Date.now(), ...data };
   }
 }

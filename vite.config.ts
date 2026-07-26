@@ -23,7 +23,7 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
-    port: 5173,
+    port: 5173, // 👈 กำหนดเป็น Port 5173
     strictPort: true,
     host: true,
     allowedHosts: [

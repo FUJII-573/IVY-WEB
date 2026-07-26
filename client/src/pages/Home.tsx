@@ -107,17 +107,17 @@ export default function Home() {
     try {
       // ส่งข้อมูลผ่าน tRPC
       const firstItem = cart[0];
-      // รวมรายการอาหารเป็นข้อความเดียวที่อ่านง่าย
+      // รวมรายการอาหารทั้งหมดในตะกร้าเป็นข้อความเดียว
       const orderSummary = cart.map(i => `${i.name.th} x ${i.qty}`).join(", ");
       const totalQty = cart.reduce((s, i) => s + i.qty, 0);
 
       const payload = {
         employeeName: employee,
-        itemId: firstItem.id,
-        itemName: orderSummary, // ส่งรายการทั้งหมดไปในฟิลด์ชื่อ
+        itemId: firstItem.id || 1,
+        itemName: orderSummary, 
         quantity: totalQty,
-        unit: firstItem.unit,
-        note: note,
+        unit: firstItem.unit || "unit",
+        note: note || "-",
       };
 
       // แสดงผลสำเร็จทันทีเพื่อความรวดเร็ว (Optimistic Update)

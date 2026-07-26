@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 const plugins = [react(), tailwindcss()];
 
 export default defineConfig({
-  base: "/",
+  base: "/IVY-WEB/", // 👈 1. แก้เป็นชื่อ Repository ของคุณ
   plugins,
   resolve: {
     alias: {
@@ -19,11 +19,11 @@ export default defineConfig({
   root: path.resolve(import.meta.dirname, "client"),
   publicDir: path.resolve(import.meta.dirname, "client", "public"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: path.resolve(import.meta.dirname, "dist"), // 👈 2. แก้ปลายทางให้ลงที่ dist
     emptyOutDir: true,
   },
   server: {
-    port: 5173, // 👈 กำหนดเป็น Port 5173
+    port: 5173,
     strictPort: true,
     host: true,
     allowedHosts: [

@@ -20,6 +20,8 @@ export default function Home() {
   const customEmployees = [
     "Clarvienne Althea Laforteza",
     "Renley Koji",
+    "Maxim Alexandrovich Morozov",
+    "Berry Butcher",
   ];
   const employees = [...customEmployees];
 

@@ -2,7 +2,9 @@ name: Deploy Vite React App to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"] # หรือ master ตามชื่อ branch หลักของคุณ
+
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -31,13 +33,15 @@ jobs:
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build Frontend
+      - name: Build
         run: npx vite build
+        env:
+          NODE_ENV: production
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist/public'
+          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment

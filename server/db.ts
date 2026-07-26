@@ -5,7 +5,7 @@ import { InsertUser, users, employees, InsertEmployee, requisitions, InsertRequi
 import { sendDiscordNotification } from "./_core/notification";
 import { ENV } from './_core/env';
 
-const GOOGLE_SHEETS_WEB_APP_URL = process.env.GOOGLE_SHEETS_WEB_APP_URL="https://script.google.com/macros/s/AKfycbxai3cvtrVA10RBY9He1ayx-rHpaEJ694f-axUzmUftcW_pkxSsp_noYNSTP3dM2PtP4g/exec"
+const GOOGLE_SHEETS_WEB_APP_URL = process.env.GOOGLE_SHEETS_WEB_APP_URL;
 
 // Initial German Menu Data
 const initialGermanMenu = [
@@ -201,17 +201,16 @@ export async function syncEmployeesToGoogleSheets() {
     const employeeList = await db.select().from(employees);
     const names = employeeList.map(e => e.name);
 
-    const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbyiDOq89bHfEiip0TZS08RnqBvAn71XKvthICWiUbBMtCB9_TOD85MTVV38Bv7J1PpQUA/exec", // <-- Placeholder, user will update this
-      {
-        method: "POST",
-        mode: "no-cors",
-        body: new URLSearchParams({
-          action: "updateEmployees",
-          employees: JSON.stringify(names),
-        }),
-      }
-    );
+    if (!GOOGLE_SHEETS_WEB_APP_URL) return;
+
+    await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: new URLSearchParams({
+        action: "updateEmployees",
+        employees: JSON.stringify(names),
+      }),
+    });
 
     console.log("[Database] Synced employees to Google Sheets");
   } catch (error) {
@@ -314,17 +313,16 @@ export async function syncInventoryToGoogleSheets() {
     const inventoryList = await db.select().from(inventory);
     const data = inventoryList.map(item => [item.itemName, item.quantity, item.unit, item.minThreshold]);
 
-    const response = await fetch(
-      "https://script.google.com/macros/s/AKfycbyiDOq89bHfEiip0TZS08RnqBvAn71XKvthICWiUbBMtCB9_TOD85MTVV38Bv7J1PpQUA/exec", // <-- Placeholder, user will update this
-      {
-        method: "POST",
-        mode: "no-cors",
-        body: new URLSearchParams({
-          action: "updateInventory",
-          inventory: JSON.stringify(data),
-        }),
-      }
-    );
+    if (!GOOGLE_SHEETS_WEB_APP_URL) return;
+
+    await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: new URLSearchParams({
+        action: "updateInventory",
+        inventory: JSON.stringify(data),
+      }),
+    });
 
     console.log("[Database] Synced inventory to Google Sheets");
   } catch (error) {
@@ -438,6 +436,25 @@ export async function createRequisition(data: {
 
     // ซิงค์ Inventory ไปยัง Google Sheets หลังจากตัดสต็อก
     await syncInventoryToGoogleSheets();
+
+    // ซิงค์ Requisition ไปยัง Google Sheets
+    try {
+      const orderStr = data.items.map((i) => `${i.name} x ${i.quantity}`).join(", ");
+      await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",
+        body: new URLSearchParams({
+          action: "addRequisition",
+          employee: data.employeeName,
+          order: orderStr,
+          note: data.note || "",
+          total: "0", // หรือคำนวณราคาถ้ามี
+        }),
+      });
+      console.log("[Database] Synced requisition to Google Sheets");
+    } catch (sheetError) {
+      console.error("[Database] Failed to sync requisition to Google Sheets:", sheetError);
+    }
 
     return { success: true, requisitionId };
   } catch (error) {

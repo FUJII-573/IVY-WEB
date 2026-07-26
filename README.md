@@ -75,36 +75,45 @@ npm run dev
     ```javascript
     function doPost(e) {
       var ss = SpreadsheetApp.getActiveSpreadsheet();
-      var sheet = ss.getSheetByName("Employees") || ss.insertSheet("Employees");
-      var inventorySheet = ss.getSheetByName("Inventory") || ss.insertSheet("Inventory");
-      
       var action = e.parameter.action;
       
+      if (action === "addRequisition") {
+        var sheet = ss.getSheetByName("Requisitions") || ss.insertSheet("Requisitions");
+        if (sheet.getLastRow() === 0) {
+          sheet.appendRow(["Timestamp", "Employee", "Order", "Note", "Total"]);
+        }
+        sheet.appendRow([
+          new Date(),
+          e.parameter.employee,
+          e.parameter.order,
+          e.parameter.note,
+          e.parameter.total
+        ]);
+        return ContentService.createTextOutput("Requisition added");
+      }
+      
       if (action === "updateEmployees") {
+        var sheet = ss.getSheetByName("Employees") || ss.insertSheet("Employees");
         var names = JSON.parse(e.parameter.employees);
         sheet.clear(); 
-        sheet.appendRow(["Employee Name"]); // Header
+        sheet.appendRow(["Employee Name"]);
         names.forEach(function(name) {
           sheet.appendRow([name]);
         });
         return ContentService.createTextOutput("Employees updated");
-      } else if (action === "updateInventory") {
+      }
+      
+      if (action === "updateInventory") {
+        var sheet = ss.getSheetByName("Inventory") || ss.insertSheet("Inventory");
         var inventoryData = JSON.parse(e.parameter.inventory);
-        inventorySheet.clear();
-        inventorySheet.appendRow(["ID", "Name", "Category", "Quantity", "Unit", "Price", "Image URL"]); // Header
+        sheet.clear();
+        sheet.appendRow(["Item Name", "Quantity", "Unit", "Min Threshold"]);
         inventoryData.forEach(function(item) {
-          inventorySheet.appendRow([
-            item.id,
-            item.name,
-            item.category,
-            item.quantity,
-            item.unit,
-            item.price,
-            item.imageUrl || ""
-          ]);
+          sheet.appendRow(item);
         });
         return ContentService.createTextOutput("Inventory updated");
       }
+      
       return ContentService.createTextOutput("Invalid action");
     }
     ```

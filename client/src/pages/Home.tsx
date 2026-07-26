@@ -30,8 +30,7 @@ export default function Home() {
   const { theme, toggleTheme, switchable } = useTheme();
   const [, setLocation] = useLocation();
   
-  // ลิงก์ Google Sheets ล่าสุดของพี่ครับ
-  const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbyY4jos4ntuj4fA9X1CRM3vvx0nZ29xqU6aKXs3N6jU05Q8y_TcPKFXu4ew7EorhUX7/exec";
+
 
   // 1. รายชื่อพนักงาน (พี่แก้ชื่อพนักงานตรงนี้ได้เลยครับ)
   const { data: employeesData } = trpc.employees.list.useQuery();
@@ -98,33 +97,33 @@ export default function Home() {
   const totalQty = cart.reduce((s, i) => s + i.qty, 0);
   const totalPrice = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 
+  const createRequisition = trpc.requisitions.create.useMutation();
+
   const confirmSubmit = async () => {
     if (!employee) { setPopup("เลือกผู้จัดออเดอร์"); return; }
+    if (cart.length === 0) { setPopup("เลือกรายการอาหาร"); return; }
     setSending(true);
     
-    // รูปแบบรายการอาหาร: "เมนู A x 1, เมนู B x 2"
-    const orderStr = cart.map((i) => `${i.name.th} x ${i.qty}`).join(", ");
-    
     try {
-      // ส่งข้อมูลไป Google Sheets
-      await fetch(GOOGLE_SHEET_URL, {
-        method: "POST",
-        mode: "no-cors",
-        body: new URLSearchParams({
-          action: "addRequisition",
-          employee: employee, // NAME
-          order: orderStr,   // ORDER
-          note: note,        // NOTE
-          total: totalPrice.toString() // TOTAL
-        }),
+      // ส่งข้อมูลผ่าน tRPC (จะลง DB, ส่ง Discord และส่ง Google Sheets ผ่าน Server)
+      // เนื่องจากระบบเดิมใช้ itemId/itemName แบบตัวเดียว แต่ UI รองรับหลายรายการ
+      // เราจะส่งรายการแรกเป็นหลัก หรือปรับให้เข้ากับ Schema ที่รองรับ (ในที่นี้อิงตาม router)
+      const firstItem = cart[0];
+      await createRequisition.mutateAsync({
+        employeeName: employee,
+        itemId: firstItem.id,
+        itemName: cart.map(i => i.name.th).join(", "),
+        quantity: cart.reduce((s, i) => s + i.qty, 0),
+        unit: firstItem.unit,
+        note: note,
       });
 
       setSubmitted(true);
       setCart([]);
       setEmployee("");
       setNote("");
-    } catch (e) { 
-      setPopup("เกิดข้อผิดพลาดในการเชื่อมต่อ"); 
+    } catch (e: any) { 
+      setPopup(e.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล"); 
     }
     setSending(false);
     setShowConfirm(false);

@@ -6,7 +6,7 @@ import { defineConfig } from "vite";
 const plugins = [react(), tailwindcss()];
 
 export default defineConfig({
-  base: "/IVY-WEB/",
+  base: "/",
   plugins,
   resolve: {
     alias: {
@@ -23,14 +23,16 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    port: 5173,
+    strictPort: true,
     host: true,
     allowedHosts: [
       "localhost",
       "127.0.0.1",
     ],
     fs: {
-      strict: true,
-      deny: ["**/.*"],
+      strict: false,
+      allow: [".."],
     },
   },
 });

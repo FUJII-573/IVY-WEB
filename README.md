@@ -75,46 +75,63 @@ npm run dev
     ```javascript
     function doPost(e) {
       var ss = SpreadsheetApp.getActiveSpreadsheet();
-      var action = e.parameter.action;
+      var params = {};
+      
+      // พยายามแกะข้อมูลจาก JSON Body ก่อน ถ้าไม่มีให้ใช้จาก URL Parameter
+      if (e.postData && e.postData.contents) {
+        try {
+          params = JSON.parse(e.postData.contents);
+        } catch (err) {
+          params = e.parameter;
+        }
+      } else {
+        params = e.parameter;
+      }
+
+      var action = params.action;
       
       if (action === "addRequisition") {
         var sheet = ss.getSheetByName("Requisitions") || ss.insertSheet("Requisitions");
         if (sheet.getLastRow() === 0) {
-          sheet.appendRow(["Timestamp", "Employee", "Order", "Note", "Total"]);
+          sheet.appendRow(["TIME", "NAME", "ORDER", "NOTE", "TOTAL"]);
         }
         sheet.appendRow([
-          new Date(),
-          e.parameter.employee,
-          e.parameter.order,
-          e.parameter.note,
-          e.parameter.total
+          new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' }),
+          params.employee || params.employeeName || "",
+          params.order || "",
+          params.note || "",
+          params.total || 0
         ]);
-        return ContentService.createTextOutput("Requisition added");
+        return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+          .setMimeType(ContentService.MimeType.JSON);
       }
       
       if (action === "updateEmployees") {
         var sheet = ss.getSheetByName("Employees") || ss.insertSheet("Employees");
-        var names = JSON.parse(e.parameter.employees);
+        var names = JSON.parse(params.employees);
         sheet.clear(); 
         sheet.appendRow(["Employee Name"]);
         names.forEach(function(name) {
           sheet.appendRow([name]);
         });
-        return ContentService.createTextOutput("Employees updated");
+        return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+          .setMimeType(ContentService.MimeType.JSON);
       }
       
       if (action === "updateInventory") {
         var sheet = ss.getSheetByName("Inventory") || ss.insertSheet("Inventory");
-        var inventoryData = JSON.parse(e.parameter.inventory);
+        var inventoryData = JSON.parse(params.inventory);
         sheet.clear();
         sheet.appendRow(["Item Name", "Quantity", "Unit", "Min Threshold"]);
         inventoryData.forEach(function(item) {
           sheet.appendRow(item);
         });
-        return ContentService.createTextOutput("Inventory updated");
+        return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+          .setMimeType(ContentService.MimeType.JSON);
       }
       
-      return ContentService.createTextOutput("Invalid action");
+      return ContentService.createTextOutput(JSON.stringify({ status: "error", message: "Invalid action" }))
+        .setMimeType(ContentService.MimeType.JSON);
     }
     ```
 

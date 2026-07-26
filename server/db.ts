@@ -203,14 +203,14 @@ export async function syncEmployeesToGoogleSheets() {
 
     if (!GOOGLE_SHEETS_WEB_APP_URL) return;
 
-    await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+    fetch(GOOGLE_SHEETS_WEB_APP_URL, {
       method: "POST",
-      mode: "no-cors",
-      body: new URLSearchParams({
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         action: "updateEmployees",
         employees: JSON.stringify(names),
       }),
-    });
+    }).catch((err) => console.error("[Database] Failed to sync employees:", err));
 
     console.log("[Database] Synced employees to Google Sheets");
   } catch (error) {
@@ -315,14 +315,14 @@ export async function syncInventoryToGoogleSheets() {
 
     if (!GOOGLE_SHEETS_WEB_APP_URL) return;
 
-    await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+    fetch(GOOGLE_SHEETS_WEB_APP_URL, {
       method: "POST",
-      mode: "no-cors",
-      body: new URLSearchParams({
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         action: "updateInventory",
         inventory: JSON.stringify(data),
       }),
-    });
+    }).catch((err) => console.error("[Database] Failed to sync inventory:", err));
 
     console.log("[Database] Synced inventory to Google Sheets");
   } catch (error) {
@@ -368,11 +368,11 @@ async function sendDiscordNotification(data: InsertRequisition) {
       ],
     };
 
-    await fetch(webhookUrl, {
+    fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(message),
-    });
+    }).catch((err) => console.error("[Discord] Fetch error:", err));
     console.log("[Discord] Notification sent successfully");
   } catch (error) {
     console.error("[Discord] Failed to send notification:", error);
@@ -437,23 +437,21 @@ export async function createRequisition(data: {
     // ซิงค์ Inventory ไปยัง Google Sheets หลังจากตัดสต็อก
     await syncInventoryToGoogleSheets();
 
-    // ซิงค์ Requisition ไปยัง Google Sheets
-    try {
+    // ซิงค์ Requisition ไปยัง Google Sheets (ทำงานแบบเบื้องหลัง ไม่รอผลลัพธ์)
+    if (GOOGLE_SHEETS_WEB_APP_URL) {
       const orderStr = data.items.map((i) => `${i.name} x ${i.quantity}`).join(", ");
-      await fetch(GOOGLE_SHEETS_WEB_APP_URL, {
+      fetch(GOOGLE_SHEETS_WEB_APP_URL, {
         method: "POST",
-        mode: "no-cors",
-        body: new URLSearchParams({
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
           action: "addRequisition",
           employee: data.employeeName,
           order: orderStr,
           note: data.note || "",
-          total: "0", // หรือคำนวณราคาถ้ามี
+          total: "0",
         }),
-      });
-      console.log("[Database] Synced requisition to Google Sheets");
-    } catch (sheetError) {
-      console.error("[Database] Failed to sync requisition to Google Sheets:", sheetError);
+      }).then(() => console.log("[Database] Synced requisition to Google Sheets"))
+        .catch((err) => console.error("[Database] Failed to sync requisition:", err));
     }
 
     return { success: true, requisitionId };

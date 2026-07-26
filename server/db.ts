@@ -5,7 +5,7 @@ import { InsertUser, users, employees, InsertEmployee, requisitions, InsertRequi
 import { sendDiscordNotification } from "./_core/notification";
 import { ENV } from './_core/env';
 
-const GOOGLE_SHEETS_WEB_APP_URL = process.env.GOOGLE_SHEETS_WEB_APP_URL;
+const GOOGLE_SHEETS_WEB_APP_URL = process.env.GOOGLE_SHEETS_WEB_APP_URL="https://script.google.com/macros/s/AKfycbxai3cvtrVA10RBY9He1ayx-rHpaEJ694f-axUzmUftcW_pkxSsp_noYNSTP3dM2PtP4g/exec"
 
 // Initial German Menu Data
 const initialGermanMenu = [

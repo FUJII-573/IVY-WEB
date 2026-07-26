@@ -105,25 +105,37 @@ export default function Home() {
     setSending(true);
     
     try {
-      // ส่งข้อมูลผ่าน tRPC (จะลง DB, ส่ง Discord และส่ง Google Sheets ผ่าน Server)
-      // เนื่องจากระบบเดิมใช้ itemId/itemName แบบตัวเดียว แต่ UI รองรับหลายรายการ
-      // เราจะส่งรายการแรกเป็นหลัก หรือปรับให้เข้ากับ Schema ที่รองรับ (ในที่นี้อิงตาม router)
+      // ส่งข้อมูลผ่าน tRPC
       const firstItem = cart[0];
-      await createRequisition.mutateAsync({
+      // รวมรายการอาหารเป็นข้อความเดียวที่อ่านง่าย
+      const orderSummary = cart.map(i => `${i.name.th} x ${i.qty}`).join(", ");
+      const totalQty = cart.reduce((s, i) => s + i.qty, 0);
+
+      const payload = {
         employeeName: employee,
         itemId: firstItem.id,
-        itemName: cart.map(i => i.name.th).join(", "),
-        quantity: cart.reduce((s, i) => s + i.qty, 0),
+        itemName: orderSummary, // ส่งรายการทั้งหมดไปในฟิลด์ชื่อ
+        quantity: totalQty,
         unit: firstItem.unit,
         note: note,
-      });
+      };
 
+      // แสดงผลสำเร็จทันทีเพื่อความรวดเร็ว (Optimistic Update)
       setSubmitted(true);
       setCart([]);
       setEmployee("");
       setNote("");
-    } catch (e: any) { 
-      setPopup(e.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล"); 
+
+      // ส่งข้อมูลเบื้องหลัง
+      createRequisition.mutate(payload, {
+        onError: (err) => {
+          console.error("Requisition error:", err);
+          // ไม่แจ้งเตือนผู้ใช้ซ้ำซ้อนเพราะเราแสดงหน้าสำเร็จไปแล้ว 
+          // แต่จะเก็บ log ไว้ตรวจสอบถ้าข้อมูลไม่เข้า
+        }
+      });
+    } catch (e: any) {
+      setPopup("เกิดข้อผิดพลาดร้ายแรง: " + e.message);
     }
     setSending(false);
     setShowConfirm(false);

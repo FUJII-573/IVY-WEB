@@ -2,10 +2,9 @@ import { eq, desc, and, sql } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, users, employees, InsertEmployee, requisitions, InsertRequisition, inventory, InsertInventory } from "../drizzle/schema";
-import { sendDiscordNotification } from "./_core/notification";
 import { ENV } from './_core/env';
 
-const GOOGLE_SHEETS_WEB_APP_URL = process.env.GOOGLE_SHEETS_WEB_APP_URL;
+const GOOGLE_SHEETS_WEB_APP_URL = process.env.GOOGLE_SHEETS_WEB_APP_URL || "https://script.google.com/macros/s/AKfycbwzxbm39vdshiMSNr1RiEuuSdjkQ60xe6vjqJzpcfzL2QEWDjiJeyX5183-XCfAd2_lJA/exec";
 
 // Initial German Menu Data
 const initialGermanMenu = [
@@ -40,10 +39,15 @@ export async function seedInventory() {
   }
   for (const item of initialGermanMenu) {
     const existingItem = await db.query.inventory.findFirst({
-      where: eq(inventory.name, item.name),
+      where: eq(inventory.itemName, item.name),
     });
     if (!existingItem) {
-      await db.insert(inventory).values(item);
+      await db.insert(inventory).values({
+        itemName: item.name,
+        quantity: item.quantity,
+        unit: item.unit,
+        minThreshold: 5
+      });
       console.log(`Added ${item.name} to inventory.`);
     } else {
       console.log(`${item.name} already exists, skipping.`);
@@ -165,7 +169,7 @@ export async function addEmployee(name: string) {
 
   try {
     const result = await db.insert(employees).values({ name });
-    await syncEmployeesToGoogleSheets();
+    syncEmployeesToGoogleSheets();
     return result;
   } catch (error) {
     console.error("[Database] Failed to add employee:", error);
@@ -182,7 +186,7 @@ export async function deleteEmployee(id: number) {
 
   try {
     const result = await db.delete(employees).where(eq(employees.id, id));
-    await syncEmployeesToGoogleSheets();
+    syncEmployeesToGoogleSheets();
     return result;
   } catch (error) {
     console.error("[Database] Failed to delete employee:", error);
@@ -193,26 +197,20 @@ export async function deleteEmployee(id: number) {
 export async function syncEmployeesToGoogleSheets() {
   try {
     const db = await getDb();
-    if (!db) {
-      console.warn("[Database] Cannot sync employees: database not available");
-      return;
-    }
+    if (!db || !GOOGLE_SHEETS_WEB_APP_URL) return;
 
     const employeeList = await db.select().from(employees);
     const names = employeeList.map(e => e.name);
 
-    if (!GOOGLE_SHEETS_WEB_APP_URL) return;
+    const params = new URLSearchParams();
+    params.append("action", "updateEmployees");
+    params.append("employees", JSON.stringify(names));
 
     fetch(GOOGLE_SHEETS_WEB_APP_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "updateEmployees",
-        employees: JSON.stringify(names),
-      }),
-    }).catch((err) => console.error("[Database] Failed to sync employees:", err));
-
-    console.log("[Database] Synced employees to Google Sheets");
+      mode: "no-cors",
+      body: params,
+    }).catch((err) => console.error("[Database] Sync employees error:", err));
   } catch (error) {
     console.error("[Database] Failed to sync employees to Google Sheets:", error);
   }
@@ -246,7 +244,7 @@ export async function addInventoryItem(data: InsertInventory) {
     } else {
       await db.insert(inventory).values(data);
     }
-    await syncInventoryToGoogleSheets();
+    syncInventoryToGoogleSheets();
     return { success: true };
   } catch (error) {
     console.error("[Database] Failed to add inventory item:", error);
@@ -262,7 +260,7 @@ export async function updateInventoryItem(id: number, data: Partial<InsertInvent
   }
   try {
     await db.update(inventory).set(data).where(eq(inventory.id, id));
-    await syncInventoryToGoogleSheets();
+    syncInventoryToGoogleSheets();
     return { success: true };
   } catch (error) {
     console.error("[Database] Failed to update inventory item:", error);
@@ -278,7 +276,7 @@ export async function deleteInventoryItem(id: number) {
   }
   try {
     await db.delete(inventory).where(eq(inventory.id, id));
-    await syncInventoryToGoogleSheets();
+    syncInventoryToGoogleSheets();
     return { success: true };
   } catch (error) {
     console.error("[Database] Failed to delete inventory item:", error);
@@ -294,7 +292,7 @@ export async function subtractInventory(itemId: number, quantity: number) {
   }
   try {
     await db.update(inventory).set({ quantity: sql`${inventory.quantity} - ${quantity}` }).where(and(eq(inventory.id, itemId), sql`${inventory.quantity} >= ${quantity}`));
-    await syncInventoryToGoogleSheets();
+    syncInventoryToGoogleSheets();
     return { success: true };
   } catch (error) {
     console.error("[Database] Failed to subtract inventory:", error);
@@ -305,65 +303,43 @@ export async function subtractInventory(itemId: number, quantity: number) {
 export async function syncInventoryToGoogleSheets() {
   try {
     const db = await getDb();
-    if (!db) {
-      console.warn("[Database] Cannot sync inventory: database not available");
-      return;
-    }
+    if (!db || !GOOGLE_SHEETS_WEB_APP_URL) return;
 
     const inventoryList = await db.select().from(inventory);
     const data = inventoryList.map(item => [item.itemName, item.quantity, item.unit, item.minThreshold]);
 
-    if (!GOOGLE_SHEETS_WEB_APP_URL) return;
+    const params = new URLSearchParams();
+    params.append("action", "updateInventory");
+    params.append("inventory", JSON.stringify(data));
 
     fetch(GOOGLE_SHEETS_WEB_APP_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        action: "updateInventory",
-        inventory: JSON.stringify(data),
-      }),
-    }).catch((err) => console.error("[Database] Failed to sync inventory:", err));
-
-    console.log("[Database] Synced inventory to Google Sheets");
+      mode: "no-cors",
+      body: params,
+    }).catch((err) => console.error("[Database] Sync inventory error:", err));
   } catch (error) {
     console.error("[Database] Failed to sync inventory to Google Sheets:", error);
   }
 }
 
 // Requisitions management
-async function sendDiscordNotification(data: InsertRequisition) {
+async function sendDiscordNotification(data: any) {
   const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  if (!webhookUrl) {
-    console.warn("[Discord] Webhook URL not configured, skipping notification");
-    return;
-  }
+  if (!webhookUrl) return;
 
   try {
     const message = {
       embeds: [
         {
           title: "📢 มีรายการเบิกวัตถุดิบใหม่!",
-          color: 3447003, // Blue
+          color: 3447003,
           fields: [
-            {
-              name: "👤 ผู้เบิก",
-              value: data.employeeName,
-              inline: true,
-            },
-            {
-              name: "📦 วัตถุดิบ",
-              value: `${data.itemName} (${data.quantity} ${data.unit})`,
-              inline: true,
-            },
-            {
-              name: "📝 หมายเหตุ",
-              value: data.note || "-",
-            },
+            { name: "👤 ผู้เบิก", value: data.employeeName, inline: true },
+            { name: "📦 วัตถุดิบ", value: `${data.itemName} (${data.quantity} ${data.unit})`, inline: true },
+            { name: "📝 หมายเหตุ", value: data.note || "-" },
           ],
           timestamp: new Date().toISOString(),
-          footer: {
-            text: "ระบบเบิกวัตถุดิบร้านอาหาร",
-          },
+          footer: { text: "ระบบเบิกวัตถุดิบร้านอาหาร" },
         },
       ],
     };
@@ -373,7 +349,6 @@ async function sendDiscordNotification(data: InsertRequisition) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(message),
     }).catch((err) => console.error("[Discord] Fetch error:", err));
-    console.log("[Discord] Notification sent successfully");
   } catch (error) {
     console.error("[Discord] Failed to send notification:", error);
   }
@@ -381,101 +356,76 @@ async function sendDiscordNotification(data: InsertRequisition) {
 
 export async function createRequisition(data: {
   employeeName: string;
-  items: { inventoryId: number; name: string; quantity: number; unit: string }[];
+  itemId: number;
+  itemName: string;
+  quantity: number;
+  unit: string;
   note?: string;
+  status?: string;
 }) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot create requisition: database not available");
-    throw new Error("Database not available");
-  }
+  if (!db) throw new Error("Database not available");
 
   try {
-    // ตรวจสอบสต็อกก่อนเบิก
-    // ตรวจสอบสต็อกก่อนเบิก
-    for (const item of data.items) {
+    // 1. ตรวจสอบสต็อก (ข้าม Error ถ้าไม่มีสต็อกเพื่อให้เบิกได้เสมอ)
+    try {
       const stockItem = await db.query.inventory.findFirst({
-        where: eq(inventory.id, item.inventoryId),
+        where: eq(inventory.id, data.itemId),
       });
-      if (!stockItem || stockItem.quantity < item.quantity) {
-        throw new Error(`วัตถุดิบ ${item.name} ไม่เพียงพอ หรือไม่พบรายการ`);
+      
+      if (stockItem && stockItem.quantity >= data.quantity) {
+        // 2. ตัดสต็อกเฉพาะเมื่อมีของพอ
+        await db.update(inventory)
+          .set({ quantity: sql`${inventory.quantity} - ${data.quantity}` })
+          .where(eq(inventory.id, data.itemId));
       }
+    } catch (stockErr) {
+      console.error("[Database] Stock update error (ignored):", stockErr);
     }
 
-    // ตัดสต็อก
-    for (const item of data.items) {
-      await db.update(inventory)
-        .set({ quantity: sql`${inventory.quantity} - ${item.quantity}` })
-        .where(eq(inventory.id, item.inventoryId));
-    }
-
-    // สร้างรายการเบิกจ่าย
-    const requisitionId = createId();
-    await db.insert(requisitions).values({
-      id: requisitionId,
+    // 3. บันทึกรายการเบิก
+    const result = await db.insert(requisitions).values({
       employeeName: data.employeeName,
-      items: JSON.stringify(data.items),
+      itemId: data.itemId,
+      itemName: data.itemName,
+      quantity: data.quantity,
       note: data.note,
-      totalAmount: data.items.reduce((sum, item) => sum + (item.quantity * (stockMap[item.inventoryId]?.price || 0)), 0), // Calculate total amount based on current stock prices
-      itemName: data.items.map(item => item.name).join(', '),
-      quantity: data.items.reduce((sum, item) => sum + item.quantity, 0),
-      unit: data.items.map(item => item.unit).join(', '),
+      status: (data.status as any) || "pending"
     });
 
-    // ส่งแจ้งเตือน Discord
-    sendDiscordNotification({
-      id: requisitionId,
-      employeeName: data.employeeName,
-      itemName: data.items.map(item => item.name).join(', '),
-      quantity: data.items.reduce((sum, item) => sum + item.quantity, 0),
-      unit: data.items.map(item => item.unit).join(', '),
-      note: data.note,
-      createdAt: new Date(),
-      status: 'pending',
-    }).catch(console.error);
-
-    // ซิงค์ Inventory ไปยัง Google Sheets หลังจากตัดสต็อก
-    await syncInventoryToGoogleSheets();
-
-    // ซิงค์ Requisition ไปยัง Google Sheets (ทำงานแบบเบื้องหลัง ไม่รอผลลัพธ์)
+    // 4. ทำงานเบื้องหลัง (ไม่รอผลลัพธ์)
+    sendDiscordNotification(data);
+    syncInventoryToGoogleSheets();
+    
     if (GOOGLE_SHEETS_WEB_APP_URL) {
-      const orderStr = data.items.map((i) => `${i.name} x ${i.quantity}`).join(", ");
+      // ส่งแบบ URLSearchParams เพื่อให้ Apps Script รับผ่าน e.parameter ได้โดยตรง
+      // ซึ่งจะเสถียรกว่าการส่ง JSON ในบางกรณี
+      const params = new URLSearchParams();
+      params.append("action", "addRequisition");
+      params.append("name", data.employeeName); 
+      params.append("order", data.itemName); // data.itemName ในที่นี้คือรายการทั้งหมดที่รวมมาจากหน้าบ้านแล้ว
+      params.append("note", data.note || "");
+      params.append("total", data.quantity.toString()); // ส่งจำนวนรวมไปที่ช่อง TOTAL ชั่วคราวเพื่อให้เห็นตัวเลข
+
       fetch(GOOGLE_SHEETS_WEB_APP_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "addRequisition",
-          employee: data.employeeName,
-          order: orderStr,
-          note: data.note || "",
-          total: "0",
-        }),
-      }).then(() => console.log("[Database] Synced requisition to Google Sheets"))
-        .catch((err) => console.error("[Database] Failed to sync requisition:", err));
+        mode: "no-cors", // ใช้ no-cors เพื่อป้องกันปัญหา CORS
+        body: params,
+      }).catch((err) => console.error("[Database] Google Sheets Sync Error:", err));
     }
 
-    return { success: true, requisitionId };
+    return { success: true };
   } catch (error) {
-    console.error("[Database] Failed to create requisition:", error);
+    console.error("[Database] createRequisition error:", error);
     throw error;
   }
 }
 
 export async function getRequisitions(limit: number = 50, offset: number = 0) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get requisitions: database not available");
-    return [];
-  }
-
+  if (!db) return [];
   try {
-    const result = await db
-      .select()
-      .from(requisitions)
-      .orderBy(desc(requisitions.createdAt))
-      .limit(limit)
-      .offset(offset);
-    return result;
+    return await db.select().from(requisitions).orderBy(desc(requisitions.createdAt)).limit(limit).offset(offset);
   } catch (error) {
     console.error("[Database] Failed to get requisitions:", error);
     return [];
@@ -484,17 +434,9 @@ export async function getRequisitions(limit: number = 50, offset: number = 0) {
 
 export async function getRequisitionById(id: number) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get requisition: database not available");
-    return undefined;
-  }
-
+  if (!db) return undefined;
   try {
-    const result = await db
-      .select()
-      .from(requisitions)
-      .where(eq(requisitions.id, id))
-      .limit(1);
+    const result = await db.select().from(requisitions).where(eq(requisitions.id, id)).limit(1);
     return result.length > 0 ? result[0] : undefined;
   } catch (error) {
     console.error("[Database] Failed to get requisition:", error);
@@ -504,17 +446,9 @@ export async function getRequisitionById(id: number) {
 
 export async function updateRequisitionStatus(id: number, status: string) {
   const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot update requisition: database not available");
-    throw new Error("Database not available");
-  }
-
+  if (!db) throw new Error("Database not available");
   try {
-    const result = await db
-      .update(requisitions)
-      .set({ status: status as any })
-      .where(eq(requisitions.id, id));
-    return result;
+    return await db.update(requisitions).set({ status: status as any }).where(eq(requisitions.id, id));
   } catch (error) {
     console.error("[Database] Failed to update requisition:", error);
     throw error;
@@ -523,43 +457,18 @@ export async function updateRequisitionStatus(id: number, status: string) {
 
 export async function getDashboardStats() {
   const db = await getDb();
-  if (!db) {
-    return {
-      totalRequisitions: 0,
-      totalAmount: 0,
-      statusCounts: [],
-      recentRequisitions: [],
-    };
-  }
-
+  if (!db) return { totalRequisitions: 0, totalAmount: 0, statusCounts: [], recentRequisitions: [] };
   try {
     const allRequisitions = await db.select().from(requisitions);
-    
     const totalRequisitions = allRequisitions.length;
-    const totalAmount = allRequisitions.reduce((sum, r) => sum + r.quantity, 0); // เปลี่ยนเป็น quantity
-    
+    const totalAmount = allRequisitions.reduce((sum, r) => sum + r.quantity, 0);
     const statusMap = allRequisitions.reduce((acc, r) => {
       acc[r.status] = (acc[r.status] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-
-    const statusCounts = Object.entries(statusMap).map(([status, count]) => ({
-      status,
-      count,
-    }));
-
-    const recentRequisitions = await db
-      .select()
-      .from(requisitions)
-      .orderBy(desc(requisitions.createdAt))
-      .limit(5);
-
-    return {
-      totalRequisitions,
-      totalAmount,
-      statusCounts,
-      recentRequisitions,
-    };
+    const statusCounts = Object.entries(statusMap).map(([status, count]) => ({ status, count }));
+    const recentRequisitions = await db.select().from(requisitions).orderBy(desc(requisitions.createdAt)).limit(5);
+    return { totalRequisitions, totalAmount, statusCounts, recentRequisitions };
   } catch (error) {
     console.error("[Database] Failed to get dashboard stats:", error);
     throw error;

@@ -10,8 +10,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    
-    <!-- Script สำหรับแก้ปัญหารีเฟรชหน้าเว็บแล้วเจอ 404 บน GitHub Pages (SPA Redirect) -->
+
+    <!-- 📌 เพิ่ม Script นี้ไว้ใน <head> ทั้งไฟล์ index.html และ 404.html -->
     <script type="text/javascript">
       (function(l) {
         if (l.search[1] === '/' ) {
@@ -28,7 +28,6 @@
 
   <body>
     <div id="root"></div>
-    <!-- ชี้ไปที่ Entry Point ของ React ฝั่ง Client -->
     <script type="module" src="/src/main.tsx"></script>
   </body>
 

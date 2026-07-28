@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 
+// ⚠️ วาง URL ของ Google Apps Script Web App ที่คัดลอกมาตรงนี้
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxtxSIU2XWLt1S6NXE-DFLaI-pHkSJUhuexLU4IFeqn7Zt9Srk6jevr8ttfkVDRa_k/exec";
+
 const playClickSound = () => {
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -54,21 +57,26 @@ export default function Home() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [orders, setOrders] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<"order" | "list">("order");
+  const [loading, setLoading] = useState(false);
 
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [tempNote, setTempNote] = useState("");
 
-  useEffect(() => {
-    const saved = localStorage.getItem("ivy_orders");
-    if (saved) {
-      try { setOrders(JSON.parse(saved)); } catch (e) {}
+  // ดึงข้อมูลจาก Google Sheets เมื่อเปิดหน้าเว็บ
+  const fetchOrders = async () => {
+    try {
+      const res = await fetch(WEB_APP_URL);
+      const data = await res.json();
+      // เรียงจากใหม่ไปเก่า
+      setOrders(data.reverse());
+    } catch (e) {
+      console.log("Fetch error", e);
     }
-  }, []);
-
-  const saveOrdersToStorage = (updatedOrders: any[]) => {
-    setOrders(updatedOrders);
-    localStorage.setItem("ivy_orders", JSON.stringify(updatedOrders));
   };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
 
   const add = (item: any) => {
     playClickSound();
@@ -91,7 +99,7 @@ export default function Home() {
   const totalQty = cart.reduce((s, i) => s + i.qty, 0);
   const totalPrice = cart.reduce((s, i) => s + (i.price * i.qty), 0);
 
-  const confirmSubmit = () => {
+  const confirmSubmit = async () => {
     if (!employee) { setPopup("เลือกผู้จัดออเดอร์"); setTimeout(() => setPopup(""), 3000); return; }
     if (cart.length === 0) { setPopup("เลือกรายการอาหาร"); setTimeout(() => setPopup(""), 3000); return; }
     if (!paymentMethod) { setPopup("กรุณาเลือกช่องทางการชำระเงิน"); setTimeout(() => setPopup(""), 3000); return; }
@@ -108,29 +116,59 @@ export default function Home() {
       note: note || "-"
     };
 
-    saveOrdersToStorage([newOrder, ...orders]);
-    setCart([]);
-    setNote("");
-    setPaymentMethod("");
-    setShowConfirm(false);
-    setShowCartModal(false);
-    setActiveTab("list");
+    setLoading(true);
+    setPopup("กำลังบันทึก...");
+
+    try {
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "add", order: newOrder })
+      });
+      await fetchOrders();
+      setCart([]);
+      setNote("");
+      setPaymentMethod("");
+      setShowConfirm(false);
+      setShowCartModal(false);
+      setActiveTab("list");
+      setPopup("บันทึกสำเร็จ");
+    } catch (e) {
+      setPopup("เกิดข้อผิดพลาด");
+    }
+    setLoading(false);
+    setTimeout(() => setPopup(""), 2000);
   };
 
-  const deleteOrder = (id: number) => {
+  const deleteOrder = async (id: number) => {
     if (confirm("ต้องการลบรายการเบิกนี้ใช่หรือไม่?")) {
-      const updated = orders.filter((o) => o.id !== id);
-      saveOrdersToStorage(updated);
-      setPopup("ลบรายการเรียบร้อย");
+      setPopup("กำลังลบ...");
+      try {
+        await fetch(WEB_APP_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "delete", id: id })
+        });
+        await fetchOrders();
+        setPopup("ลบเรียบร้อย");
+      } catch (e) {
+        setPopup("ลบไม่สำเร็จ");
+      }
       setTimeout(() => setPopup(""), 2000);
     }
   };
 
-  const saveNoteEdit = (id: number) => {
-    const updated = orders.map((o) => o.id === id ? { ...o, note: tempNote || "-" } : o);
-    saveOrdersToStorage(updated);
-    setEditingOrderId(null);
-    setPopup("อัปเดตหมายเหตุเรียบร้อย");
+  const saveNoteEdit = async (id: number) => {
+    setPopup("กำลังบันทึกหมายเหตุ...");
+    try {
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "updateNote", id: id, note: tempNote || "-" })
+      });
+      await fetchOrders();
+      setEditingOrderId(null);
+      setPopup("อัปเดตหมายเหตุเรียบร้อย");
+    } catch (e) {
+      setPopup("อัปเดตไม่สำเร็จ");
+    }
     setTimeout(() => setPopup(""), 2000);
   };
 
@@ -138,10 +176,9 @@ export default function Home() {
     <div style={{ width: "100%", minHeight: "100vh", margin: 0, padding: 15, fontFamily: "Poppins, sans-serif", background: "#f8f9fa", position: "relative", paddingBottom: 80, boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
       <h2 style={{ color: "#0d47a1", textAlign: "center", marginBottom: 15, fontSize: 22 }}>The Little Ivy House</h2>
       
-      {/* Tab เต็มความกว้าง */}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 15, width: "100%" }}>
         <button onClick={() => { setActiveTab("order"); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "order" ? "#0d47a1" : "#e0e0e0", color: activeTab === "order" ? "#fff" : "#333", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📝 หน้าจอเบิกสินค้า</button>
-        <button onClick={() => { setActiveTab("list"); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "list" ? "#0d47a1" : "#e0e0e0", color: activeTab === "list" ? "#fff" : "#333", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📋 ประวัติการเบิก ({orders.length})</button>
+        <button onClick={() => { setActiveTab("list"); fetchOrders(); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "list" ? "#0d47a1" : "#e0e0e0", color: activeTab === "list" ? "#fff" : "#333", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📋 ประวัติการเบิก ({orders.length}) 🔄</button>
       </div>
 
       {activeTab === "order" ? (
@@ -158,7 +195,6 @@ export default function Home() {
 
           <input placeholder="🔍 ค้นหาเมนู..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #ddd", background: "#fff", boxSizing: "border-box" }} />
 
-          {/* รายการสินค้าแบบ Grid สี่เหลี่ยมหลายๆ ช่อง */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, width: "100%" }}>
             {filtered.map((item) => (
               <div key={item.id} style={{ background: "#fff", padding: 12, borderRadius: 12, border: "1px solid #eee", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.03)", boxSizing: "border-box", textAlign: "center" }}>
@@ -178,9 +214,7 @@ export default function Home() {
         <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
             <span style={{ color: "#666", fontSize: 13 }}>รายการเบิกทั้งหมด ({orders.length})</span>
-            {orders.length > 0 && (
-              <button onClick={() => { if(confirm("ต้องการล้างประวัติทั้งหมด?")) { saveOrdersToStorage([]); } }} style={{ background: "#d32f2f", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>ล้างประวัติทั้งหมด</button>
-            )}
+            <button onClick={fetchOrders} style={{ background: "#0d47a1", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>🔄 รีเฟรชข้อมูล</button>
           </div>
 
           {orders.length === 0 ? (
@@ -201,9 +235,9 @@ export default function Home() {
                 </div>
 
                 <div style={{ borderTop: "1px solid #eee", paddingTop: 6 }}>
-                  {ord.items.map((it: any, idx: number) => (
+                  {Array.isArray(ord.items) && ord.items.map((it: any, idx: number) => (
                     <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "1px 0" }}>
-                      <span style={{ color: "#333" }}>• {it.name.th}</span>
+                      <span style={{ color: "#333" }}>• {it.name?.th || it.name}</span>
                       <span style={{ fontWeight: "bold" }}>x {it.qty}</span>
                     </div>
                   ))}
@@ -241,7 +275,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Floating Cart Button */}
       {cart.length > 0 && (
         <button 
           onClick={() => { setShowCartModal(true); playClickSound(); }}
@@ -269,7 +302,6 @@ export default function Home() {
         </button>
       )}
 
-      {/* Modal ตะกร้าสินค้า */}
       {showCartModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', zIndex: 1000 }}>
           <div style={{ background: '#fff', padding: 20, borderTopLeftRadius: 20, borderTopRightRadius: 20, width: '100%', maxWidth: '1000px', maxHeight: '80vh', overflowY: 'auto', boxSizing: "border-box" }}>
@@ -340,6 +372,7 @@ export default function Home() {
         </div>
       )}
 
+      {loading && <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 3000, color: '#fff', fontWeight: 'bold' }}>กำลังประมวลผล...</div>}
       {popup && <div style={{ position: 'fixed', bottom: 50, left: '50%', transform: 'translateX(-50%)', background: '#333', color: '#fff', padding: '8px 16px', borderRadius: 20, zIndex: 2000, fontSize: 12 }}>{popup}</div>}
     </div>
   );

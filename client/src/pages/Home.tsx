@@ -62,13 +62,11 @@ export default function Home() {
   const [editingOrderId, setEditingOrderId] = useState<number | null>(null);
   const [tempNote, setTempNote] = useState("");
 
-  // ดึงข้อมูลจาก Google Sheets เมื่อเปิดหน้าเว็บ
   const fetchOrders = async () => {
     try {
       const res = await fetch(WEB_APP_URL);
       const data = await res.json();
-      // เรียงจากใหม่ไปเก่า
-      setOrders(data.reverse());
+      setOrders(Array.isArray(data) ? data.reverse() : []);
     } catch (e) {
       console.log("Fetch error", e);
     }
@@ -220,57 +218,76 @@ export default function Home() {
           {orders.length === 0 ? (
             <div style={{ textAlign: "center", padding: 30, color: "#666", background: "#fff", borderRadius: 12, boxShadow: "0 2px 5px rgba(0,0,0,0.05)", width: "100%", boxSizing: "border-box" }}>ยังไม่มีรายการเบิกในระบบ</div>
           ) : (
-            orders.map((ord) => (
-              <div key={ord.id} style={{ background: "#fff", padding: 12, borderRadius: 12, boxShadow: "0 2px 5px rgba(0,0,0,0.05)", borderLeft: "4px solid #0d47a1", display: "flex", flexDirection: "column", gap: 6, width: "100%", boxSizing: "border-box" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <span style={{ fontSize: 12, color: "#666" }}>👤 <strong>{ord.employee}</strong></span>
-                  <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                    <span style={{ fontSize: 11, color: "#666" }}>{ord.date} {ord.time}</span>
-                    <button onClick={() => deleteOrder(ord.id)} style={{ background: "#ffebee", color: "#c62828", border: "none", borderRadius: 4, padding: "2px 6px", cursor: "pointer", fontSize: 10, fontWeight: "bold" }}>🗑️ ลบ</button>
+            orders.map((ord) => {
+              const orderId = ord.ID || ord.id;
+              const employeeName = ord.Employee || ord.employee;
+              const orderDate = ord.Date || ord.date;
+              const orderTime = ord.Time || ord.time;
+              const payment = ord.PaymentMethod || ord.paymentMethod;
+              const orderNote = ord.Note || ord.note;
+              const totalQ = ord.TotalQty || ord.totalQty;
+              const totalP = ord.TotalPrice || ord.totalPrice;
+              let itemsList = ord.Items || ord.items;
+              if (typeof itemsList === 'string') {
+                try { itemsList = JSON.parse(itemsList); } catch (e) { itemsList = []; }
+              }
+
+              return (
+                <div key={orderId || Math.random()} style={{ background: "#fff", padding: 12, borderRadius: 12, boxShadow: "0 2px 5px rgba(0,0,0,0.05)", borderLeft: "4px solid #0d47a1", display: "flex", flexDirection: "column", gap: 6, width: "100%", boxSizing: "border-box" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 12, color: "#666" }}>👤 <strong>{employeeName || "ไม่ระบุชื่อ"}</strong></span>
+                    <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                      <span style={{ fontSize: 11, color: "#666" }}>{orderDate} {orderTime}</span>
+                      <button onClick={() => deleteOrder(orderId)} style={{ background: "#ffebee", color: "#c62828", border: "none", borderRadius: 4, padding: "2px 6px", cursor: "pointer", fontSize: 10, fontWeight: "bold" }}>🗑️ ลบ</button>
+                    </div>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: "#0d47a1", fontWeight: "bold" }}>
+                    ชำระผ่าน: {payment || "ไม่ระบุ"}
+                  </div>
+
+                  <div style={{ borderTop: "1px solid #eee", paddingTop: 6 }}>
+                    {Array.isArray(itemsList) && itemsList.length > 0 ? (
+                      itemsList.map((it: any, idx: number) => (
+                        <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "1px 0" }}>
+                          <span style={{ color: "#333" }}>• {it.name?.th || it.name || "สินค้า"}</span>
+                          <span style={{ fontWeight: "bold" }}>x {it.qty || 1}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ fontSize: 12, color: "#888" }}>• ข้อมูลรายการสินค้า</div>
+                    )}
+                  </div>
+
+                  <div style={{ fontSize: 11, color: "#555", background: "#f9f9f9", padding: 6, borderRadius: 6 }}>
+                    {editingOrderId === orderId ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                        <input 
+                          type="text" 
+                          value={tempNote} 
+                          onChange={(e) => setTempNote(e.target.value)} 
+                          style={{ padding: 5, borderRadius: 4, border: "1px solid #ccc", fontSize: 11, width: "100%", boxSizing: "border-box" }} 
+                        />
+                        <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                          <button onClick={() => saveNoteEdit(orderId)} style={{ background: "#0d47a1", color: "#fff", border: "none", padding: "2px 6px", borderRadius: 3, fontSize: 10, cursor: "pointer" }}>บันทึก</button>
+                          <button onClick={() => setEditingOrderId(null)} style={{ background: "#ccc", color: "#333", border: "none", padding: "2px 6px", borderRadius: 3, fontSize: 10, cursor: "pointer" }}>ยกเลิก</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <span>หมายเหตุ: {orderNote || "-"}</span>
+                        <button onClick={() => { setEditingOrderId(orderId); setTempNote(orderNote === "-" ? "" : orderNote); }} style={{ background: "none", border: "none", color: "#0d47a1", cursor: "pointer", fontSize: 10, textDecoration: "underline" }}>✏️ แก้ไข</button>
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 4, borderTop: "1px dashed #eee", fontSize: 12, fontWeight: "bold" }}>
+                    <span>รวม: {totalQ || 0} ชิ้น</span>
+                    <span style={{ color: "#0d47a1" }}>{totalP || 0} ฿</span>
                   </div>
                 </div>
-
-                <div style={{ fontSize: 12, color: "#0d47a1", fontWeight: "bold" }}>
-                  ชำระผ่าน: {ord.paymentMethod || "ไม่ระบุ"}
-                </div>
-
-                <div style={{ borderTop: "1px solid #eee", paddingTop: 6 }}>
-                  {Array.isArray(ord.items) && ord.items.map((it: any, idx: number) => (
-                    <div key={idx} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, padding: "1px 0" }}>
-                      <span style={{ color: "#333" }}>• {it.name?.th || it.name}</span>
-                      <span style={{ fontWeight: "bold" }}>x {it.qty}</span>
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ fontSize: 11, color: "#555", background: "#f9f9f9", padding: 6, borderRadius: 6 }}>
-                  {editingOrderId === ord.id ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-                      <input 
-                        type="text" 
-                        value={tempNote} 
-                        onChange={(e) => setTempNote(e.target.value)} 
-                        style={{ padding: 5, borderRadius: 4, border: "1px solid #ccc", fontSize: 11, width: "100%", boxSizing: "border-box" }} 
-                      />
-                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                        <button onClick={() => saveNoteEdit(ord.id)} style={{ background: "#0d47a1", color: "#fff", border: "none", padding: "2px 6px", borderRadius: 3, fontSize: 10, cursor: "pointer" }}>บันทึก</button>
-                        <button onClick={() => setEditingOrderId(null)} style={{ background: "#ccc", color: "#333", border: "none", padding: "2px 6px", borderRadius: 3, fontSize: 10, cursor: "pointer" }}>ยกเลิก</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <span>หมายเหตุ: {ord.note}</span>
-                      <button onClick={() => { setEditingOrderId(ord.id); setTempNote(ord.note === "-" ? "" : ord.note); }} style={{ background: "none", border: "none", color: "#0d47a1", cursor: "pointer", fontSize: 10, textDecoration: "underline" }}>✏️ แก้ไข</button>
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 4, borderTop: "1px dashed #eee", fontSize: 12, fontWeight: "bold" }}>
-                  <span>รวม: {ord.totalQty} ชิ้น</span>
-                  <span style={{ color: "#0d47a1" }}>{ord.totalPrice} ฿</span>
-                </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       )}

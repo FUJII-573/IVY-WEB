@@ -28,28 +28,29 @@ export default function Home() {
   ];
   const employees = [...customEmployees];
 
-  const staticItems = [
-    { id: 1001, category: "Food", name: { th: "The Ivy : Smoked Salmon" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/7G0XtFPG/1-Smoked-Salmon.png", price: 300 },
-    { id: 1003, category: "Food", name: { th: "The Ivy : Wurstplatte" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/Vrn4Zxs4/2-Wurstplatte.png", price: 300 },
-    { id: 1004, category: "Food", name: { th: "The Ivy : Kartoffelsuppe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/G8GzgW3K/3-Kartoffelsuppe.png", price: 300 },
-    { id: 1009, category: "Food", name: { th: "The Ivy : Schweinshaxe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/xJMgpwjF/5-Schweinshaxe.png", price: 300 },
-    { id: 1010, category: "Food", name: { th: "The Ivy : Sauerbraten" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/kRCs0TDv/6-Sauerbraten.png", price: 300 },
+ const staticItems = [
+    // 🍽️ หมวด Food
+    { id: 1001, category: "Food", name: { th: "The Ivy : Smoked Salmon" }, unit: "จาน", imageUrl: "https://i.postimg.cc/cH5jCWVm/1-Smoked-Salmon.png", price: 300 },
+    { id: 1003, category: "Food", name: { th: "The Ivy : Wurstplatte" }, unit: "จาน", imageUrl: "https://i.postimg.cc/KzsVjb6X/2-Wurstplatte.png", price: 300 },
+    { id: 1004, category: "Food", name: { th: "The Ivy : Kartoffelsuppe" }, unit: "จาน", imageUrl: "https://i.postimg.cc/sX08xztk/3-Kartoffelsuppe.png", price: 300 },
+    { id: 1009, category: "Food", name: { th: "The Ivy : Schweinshaxe" }, unit: "จาน", imageUrl: "https://i.postimg.cc/Jndg08fm/5-Schweinshaxe.png", price: 300 },
+    { id: 1010, category: "Food", name: { th: "The Ivy : Sauerbraten" }, unit: "จาน", imageUrl: "https://i.postimg.cc/0jM4J3sF/6-Sauerbraten.png", price: 300 },
     
-    // หมวดของหวาน (Dessert)
-    { id: 1005, category: "Dessert", name: { th: "The Ivy : Black Forest Cake" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/9RZ1g6XY/4-Black-Forest-Cake.png", price: 300 },
-    { id: 1007, category: "Dessert", name: { th: "The Ivy : Bienenstich" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/YGY8D52x/5-Bienenstich.png", price: 300 },
-    { id: 1008, category: "Dessert", name: { th: "The Ivy : Green Apple Sorbe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/V0wgxK5B/6-Green-Apple-Sorbe.png", price: 300 },
+    // 🍰 หมวด Dessert
+    { id: 1005, category: "Dessert", name: { th: "The Ivy : Black Forest Cake" }, unit: "จาน", imageUrl: "https://i.postimg.cc/vBSjTypk/4-Black-Forest-Cake.png", price: 300 },
+    { id: 1007, category: "Dessert", name: { th: "The Ivy : Bienenstich" }, unit: "จาน", imageUrl: "https://i.postimg.cc/C16t50W9/5-Bienenstich.png", price: 300 },
+    { id: 1008, category: "Dessert", name: { th: "The Ivy : Green Apple Sorbe" }, unit: "จาน", imageUrl: "https://i.postimg.cc/3N4qD6T6/6-Green-Apple-Sorbe.png", price: 300 },
     
-    // หมวดเซต (SET)
-    { id: 1011, category: "SET", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/5YLpKh9r/7-GERMANY-DESSERTS-SET.png", price: 600 },
-    { id: 1012, category: "SET", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/wRz2Cw3F/8-CHILLING-WITH-YOU.png", price: 1600 },
-    { id: 1013, category: "SET", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/V0wgxK5K/9-ALL-SPECIAL-GERMAN-SET.png", price: 3500 },
+    // 🍱 หมวด SET
+    { id: 1011, category: "SET", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "https://i.postimg.cc/50kGyJhf/7-GERMANY-DESSERTS-SET.png", price: 600 },
+    { id: 1012, category: "SET", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://i.postimg.cc/d3kfTXFM/8-CHILLING-WITH-YOU.png", price: 1600 },
+    { id: 1013, category: "SET", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://i.postimg.cc/J0DFBg8C/9-ALL-SPECIAL-GERMAN-SET.png", price: 3500 },
     
-    // หมวดเครื่องดื่ม (Beverage)
-    { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/N2tD3dLZ/10-Apfelschorle.png", price: 200 },
-    { id: 2002, category: "Beverage", name: { th: "The Ivy : Weihenstephaner" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/sGzmkT1k/11-Weihenstephaner.png", price: 200 },
-    { id: 2003, category: "Beverage", name: { th: "The Ivy : Riesling" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/7J49FKf8/12-Riesling.png", price: 200 },
-    { id: 2004, category: "Beverage", name: { th: "The Ivy : Kirschwasser" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/2LYGs0VN/13-Kirschwasser.png", price: 200 },
+    // 🥤 หมวด Beverage
+    { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "https://i.postimg.cc/cCgz8jW1/10-Apfelschorle.png", price: 200 },
+    { id: 2002, category: "Beverage", name: { th: "The Ivy : Weihenstephaner" }, unit: "แก้ว", imageUrl: "https://i.postimg.cc/MHMLj4wp/11-Weihenstephaner.png", price: 200 },
+    { id: 2003, category: "Beverage", name: { th: "The Ivy : Riesling" }, unit: "แก้ว", imageUrl: "https://i.postimg.cc/D0JNbDhZ/12-Riesling.png", price: 200 },
+    { id: 2004, category: "Beverage", name: { th: "The Ivy : Kirschwasser" }, unit: "แก้ว", imageUrl: "https://i.postimg.cc/2ybtBJYy/13-Kirschwasser.png", price: 200 },
   ];
   
   const [category, setCategory] = useState("Food");

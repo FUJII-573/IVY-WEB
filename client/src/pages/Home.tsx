@@ -29,21 +29,21 @@ export default function Home() {
   const employees = [...customEmployees];
 
   const staticItems = [
-    { id: 1001, category: "Food", name: { th: "The Ivy : Smoked Salmon" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509467840543985664/file_000000007f987207adf35a8aa53d9693.png?ex=6a69b479&is=6a6862f9&hm=92a377e94ce9bc737244e257ab31217991485e1f8d21c8488560bde52949c4bd&", price: 300 },
-    { id: 1003, category: "Food", name: { th: "The Ivy : Wurstplatte" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509467249457762314/file_0000000050c871fabcfa7f2a928a2b2e.png?ex=6a69b3ec&is=6a68626c&hm=f3d996c57941574aba82d211c4e646ca3fb14ccdf35f1ebeaf7159e8a18b4172&", price: 300 },
-    { id: 1004, category: "Food", name: { th: "The Ivy : Kartoffelsuppe" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1512365054933205153/file_000000006ab071f8b3c7ec73bbf7acdb.png?ex=6a69b2b7&is=6a686137&hm=9c26b9d09a2f9a051a68e705e7cea18b8028a9c0065029bae8e52fbb9eff022b&", price: 300 },
-    { id: 1005, category: "Food", name: { th: "The Ivy : Black Forest Cake" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509466740130713770/file_000000003d707207b39c63a08180d886.png?ex=6a69b373&is=6a6861f3&hm=6e8660694d969ca175d7563a33fca7c4f2b9fb7d82e3f5afd0c072a870a5a172&", price: 300 },
-    { id: 1007, category: "Food", name: { th: "The Ivy : Bienenstich" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509466502640959578/file_00000000488871fa98cb208c6d268889.png?ex=6a69b33a&is=6a6861ba&hm=3e4237d8dcd7926b43227679fc150200615e11aaaa258155b5888d26c2b85285&", price: 300 },
-    { id: 1008, category: "Food", name: { th: "The Ivy : Green Apple Sorbe" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1512365206183870474/file_00000000de28720896b2f556c8a55d54.png?ex=6a69b2db&is=6a68615b&hm=bdc1dfec6e783afa1d82b4bcab2e2b9cb520eb2e34ba4018de2a8b1cd7342976&", price: 300 },
-    { id: 1009, category: "Food", name: { th: "The Ivy : Schweinshaxe" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509468203368058920/file_0000000010b071fa87ffb057f107f275.png?ex=6a69b4d0&is=6a686350&hm=d70f38e6fdc25fe3fb8e25324f8d2277b1bb46331329367ff50723653d94580c&", price: 300 },
-    { id: 1010, category: "Food", name: { th: "The Ivy : Sauerbraten" }, unit: "จาน", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509467862149103656/file_00000000edd071fa81a922e0c254cc4a.png?ex=6a69b47e&is=6a6862fe&hm=1ec8b275a98efba3486d085a667dfef031033d8cffa8607de06cd186fceef6a2&", price: 300 },
-    { id: 1011, category: "Food", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "https://media.discordapp.net/attachments/904634942091296788/1529646661930848346/image.png?ex=6a694977&is=6a67f7f7&hm=e26f138dcd1c5070bb5411b669c9871f69d69c546ada213f184d388ab60704a9&=&format=webp&quality=lossless", price: 600 },
-    { id: 1012, category: "Food", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://media.discordapp.net/attachments/904634942091296788/1529646692763308042/image.png?ex=6a69497f&is=6a67f7ff&hm=a5ff8703c80006af21edc0dae3086e3fb8e375d9bd93f3bb0d583693ab323f10&=&format=webp&quality=lossless", price: 1600 },
-    { id: 1013, category: "Food", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://media.discordapp.net/attachments/904634942091296788/1529646764527976488/image.png?ex=6a694990&is=6a67f810&hm=b64f95daaaf86cc5530a6750199fdf8b5db620c4cff2304cb4f8d6686fe522d0&=&format=webp&quality=lossless", price: 3500 },
-    { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509464600700260382/file_00000000cd8071fabb238c57accca43f.png?ex=6a6e4eb5&is=6a6cfd35&hm=0d76dc1c324bbd71c9fcaf60173dc1c4c6af83c34be593fe995282dbd0531aaa&", price: 200 },
-    { id: 2002, category: "Beverage", name: { th: "The Ivy : Weihenstephaner" }, unit: "แก้ว", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509464973594722485/file_000000008f2871faaebd533f73fecd72.png?ex=6a6e4f0e&is=6a6cfd8e&hm=81f3bff3b5707be6f4e3055cebcc8dab8a5a7341fcae5f02c39cb6b45ccce2f7&", price: 200 },
-    { id: 2003, category: "Beverage", name: { th: "The Ivy : Riesling" }, unit: "แก้ว", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509465809368649839/file_00000000c29871faaf954033d95700f3.png?ex=6a6e4fd5&is=6a6cfe55&hm=c6c18060d72f505d083854442f7fe47bd88dc6a6399a8fd07cc986218d72bd60&", price: 200 },
-    { id: 2004, category: "Beverage", name: { th: "The Ivy : Kirschwasser" }, unit: "แก้ว", imageUrl: "https://cdn.discordapp.com/attachments/1470053127410683924/1509465932001710091/file_00000000fd1872078bd413f8015dcab4.png?ex=6a6e4ff2&is=6a6cfe72&hm=281c979758bc8639a29d84fcf3924f7bf3e1d130799031d57bf1efcb8b219157&", price: 200 },
+    { id: 1001, category: "Food", name: { th: "The Ivy : Smoked Salmon" }, unit: "จาน", imageUrl: "https://pic.in.th/image/1.Smoked-Salmon.NKk00c", price: 300 },
+    { id: 1003, category: "Food", name: { th: "The Ivy : Wurstplatte" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1004, category: "Food", name: { th: "The Ivy : Kartoffelsuppe" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1005, category: "Food", name: { th: "The Ivy : Black Forest Cake" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1007, category: "Food", name: { th: "The Ivy : Bienenstich" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1008, category: "Food", name: { th: "The Ivy : Green Apple Sorbe" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1009, category: "Food", name: { th: "The Ivy : Schweinshaxe" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1010, category: "Food", name: { th: "The Ivy : Sauerbraten" }, unit: "จาน", imageUrl: "", price: 300 },
+    { id: 1011, category: "Food", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "", price: 600 },
+    { id: 1012, category: "Food", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "", price: 1600 },
+    { id: 1013, category: "Food", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "", price: 3500 },
+    { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "", price: 200 },
+    { id: 2002, category: "Beverage", name: { th: "The Ivy : Weihenstephaner" }, unit: "แก้ว", imageUrl: "", price: 200 },
+    { id: 2003, category: "Beverage", name: { th: "The Ivy : Riesling" }, unit: "แก้ว", imageUrl: "", price: 200 },
+    { id: 2004, category: "Beverage", name: { th: "The Ivy : Kirschwasser" }, unit: "แก้ว", imageUrl: "", price: 200 },
   ];
 
   const [category, setCategory] = useState("Food");

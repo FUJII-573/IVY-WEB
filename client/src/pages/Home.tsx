@@ -28,23 +28,29 @@ export default function Home() {
   ];
   const employees = [...customEmployees];
 
-const staticItems = [
-  { id: 1001, category: "Food", name: { th: "The Ivy : Smoked Salmon" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/7G0XtFPG/1-Smoked-Salmon.png", price: 300 },
-  { id: 1003, category: "Food", name: { th: "The Ivy : Wurstplatte" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/Vrn4Zxs4/2-Wurstplatte.png", price: 300 },
-  { id: 1004, category: "Food", name: { th: "The Ivy : Kartoffelsuppe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/G8GzgW3K/3-Kartoffelsuppe.png", price: 300 },
-  { id: 1005, category: "Food", name: { th: "The Ivy : Black Forest Cake" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/9RZ1g6XY/4-Black-Forest-Cake.png", price: 300 },
-  { id: 1007, category: "Food", name: { th: "The Ivy : Bienenstich" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/YGY8D52x/5-Bienenstich.png", price: 300 },
-  { id: 1008, category: "Food", name: { th: "The Ivy : Green Apple Sorbe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/V0wgxK5B/6-Green-Apple-Sorbe.png", price: 300 },
-  { id: 1009, category: "Food", name: { th: "The Ivy : Schweinshaxe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/xJMgpwjF/5-Schweinshaxe.png", price: 300 },
-  { id: 1010, category: "Food", name: { th: "The Ivy : Sauerbraten" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/kRCs0TDv/6-Sauerbraten.png", price: 300 },
-  { id: 1011, category: "Food", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/5YLpKh9r/7-GERMANY-DESSERTS-SET.png", price: 600 },
-  { id: 1012, category: "Food", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/wRz2Cw3F/8-CHILLING-WITH-YOU.png", price: 1600 },
-  { id: 1013, category: "Food", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/V0wgxK5K/9-ALL-SPECIAL-GERMAN-SET.png", price: 3500 },
-  { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/N2tD3dLZ/10-Apfelschorle.png", price: 200 },
-  { id: 2002, category: "Beverage", name: { th: "The Ivy : Weihenstephaner" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/sGzmkT1k/11-Weihenstephaner.png", price: 200 },
-  { id: 2003, category: "Beverage", name: { th: "The Ivy : Riesling" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/7J49FKf8/12-Riesling.png", price: 200 },
-  { id: 2004, category: "Beverage", name: { th: "The Ivy : Kirschwasser" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/2LYGs0VN/13-Kirschwasser.png", price: 200 },
-];
+  const staticItems = [
+    { id: 1001, category: "Food", name: { th: "The Ivy : Smoked Salmon" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/7G0XtFPG/1-Smoked-Salmon.png", price: 300 },
+    { id: 1003, category: "Food", name: { th: "The Ivy : Wurstplatte" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/Vrn4Zxs4/2-Wurstplatte.png", price: 300 },
+    { id: 1004, category: "Food", name: { th: "The Ivy : Kartoffelsuppe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/G8GzgW3K/3-Kartoffelsuppe.png", price: 300 },
+    { id: 1009, category: "Food", name: { th: "The Ivy : Schweinshaxe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/xJMgpwjF/5-Schweinshaxe.png", price: 300 },
+    { id: 1010, category: "Food", name: { th: "The Ivy : Sauerbraten" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/kRCs0TDv/6-Sauerbraten.png", price: 300 },
+    
+    // หมวดของหวาน (Dessert)
+    { id: 1005, category: "Dessert", name: { th: "The Ivy : Black Forest Cake" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/9RZ1g6XY/4-Black-Forest-Cake.png", price: 300 },
+    { id: 1007, category: "Dessert", name: { th: "The Ivy : Bienenstich" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/YGY8D52x/5-Bienenstich.png", price: 300 },
+    { id: 1008, category: "Dessert", name: { th: "The Ivy : Green Apple Sorbe" }, unit: "จาน", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/V0wgxK5B/6-Green-Apple-Sorbe.png", price: 300 },
+    
+    // หมวดเซต (SET)
+    { id: 1011, category: "SET", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/5YLpKh9r/7-GERMANY-DESSERTS-SET.png", price: 600 },
+    { id: 1012, category: "SET", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/wRz2Cw3F/8-CHILLING-WITH-YOU.png", price: 1600 },
+    { id: 1013, category: "SET", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/V0wgxK5K/9-ALL-SPECIAL-GERMAN-SET.png", price: 3500 },
+    
+    // หมวดเครื่องดื่ม (Beverage)
+    { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/N2tD3dLZ/10-Apfelschorle.png", price: 200 },
+    { id: 2002, category: "Beverage", name: { th: "The Ivy : Weihenstephaner" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/sGzmkT1k/11-Weihenstephaner.png", price: 200 },
+    { id: 2003, category: "Beverage", name: { th: "The Ivy : Riesling" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/7J49FKf8/12-Riesling.png", price: 200 },
+    { id: 2004, category: "Beverage", name: { th: "The Ivy : Kirschwasser" }, unit: "แก้ว", imageUrl: "https://images.weserv.nl/?url=i.postimg.cc/2LYGs0VN/13-Kirschwasser.png", price: 200 },
+  ];
   
   const [category, setCategory] = useState("Food");
   const [search, setSearch] = useState("");
@@ -171,31 +177,34 @@ const staticItems = [
   };
 
   return (
-    <div style={{ width: "100%", minHeight: "100vh", margin: 0, padding: 15, fontFamily: "Poppins, sans-serif", background: "#f8f9fa", position: "relative", paddingBottom: 80, boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
+    <div style={{ width: "100%", minHeight: "100vh", margin: 0, padding: 15, fontFamily: "Poppins, sans-serif", background: "#e3f2fd", position: "relative", paddingBottom: 80, boxSizing: "border-box", display: "flex", flexDirection: "column" }}>
       <h2 style={{ color: "#0d47a1", textAlign: "center", marginBottom: 15, fontSize: 22 }}>The Little Ivy House</h2>
       
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 15, width: "100%" }}>
-        <button onClick={() => { setActiveTab("order"); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "order" ? "#0d47a1" : "#e0e0e0", color: activeTab === "order" ? "#fff" : "#333", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📝 หน้าจอเบิกสินค้า</button>
-        <button onClick={() => { setActiveTab("list"); fetchOrders(); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "list" ? "#0d47a1" : "#e0e0e0", color: activeTab === "list" ? "#fff" : "#333", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📋 ประวัติการเบิก ({orders.length}) 🔄</button>
+        <button onClick={() => { setActiveTab("order"); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "order" ? "#0d47a1" : "#bbdefb", color: activeTab === "order" ? "#fff" : "#0d47a1", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📝 หน้าจอเบิกสินค้า</button>
+        <button onClick={() => { setActiveTab("list"); fetchOrders(); playClickSound(); }} style={{ width: "100%", padding: 12, borderRadius: 12, border: "none", background: activeTab === "list" ? "#0d47a1" : "#bbdefb", color: activeTab === "list" ? "#fff" : "#0d47a1", fontWeight: "bold", cursor: "pointer", fontSize: 14, boxSizing: "border-box" }}>📋 ประวัติการเบิก ({orders.length}) 🔄</button>
       </div>
 
       {activeTab === "order" ? (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
-          <select value={employee} onChange={(e) => setEmployee(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #ddd", fontSize: 15, background: "#fff", boxSizing: "border-box" }}>
+          <select value={employee} onChange={(e) => setEmployee(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #90caf9", fontSize: 15, background: "#fff", boxSizing: "border-box" }}>
             <option value="">👤 เลือกผู้เบิก</option>
             {employees.map((e) => <option key={e} value={e}>{e}</option>)}
           </select>
 
-          <div style={{ display: "flex", gap: 8, width: "100%" }}>
-            <button onClick={() => { setCategory("Food"); playClickSound(); }} style={{ flex: 1, padding: 10, borderRadius: 12, border: "none", background: category === "Food" ? "#0d47a1" : "#e8e8e8", color: category === "Food" ? "#fff" : "#333", fontWeight: "bold", cursor: 'pointer', fontSize: 13 }}>🍽️ Food</button>
-            <button onClick={() => { setCategory("Beverage"); playClickSound(); }} style={{ flex: 1, padding: 10, borderRadius: 12, border: "none", background: category === "Beverage" ? "#0d47a1" : "#e8e8e8", color: category === "Beverage" ? "#fff" : "#333", fontWeight: "bold", cursor: 'pointer', fontSize: 13 }}>🥤 Beverage</button>
+          {/* แถบเลือกหมวดหมู่ 4 หมวด */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 6, width: "100%" }}>
+            <button onClick={() => { setCategory("Food"); playClickSound(); }} style={{ padding: "10px 4px", borderRadius: 12, border: "none", background: category === "Food" ? "#0d47a1" : "#ffffff", color: category === "Food" ? "#fff" : "#0d47a1", fontWeight: "bold", cursor: 'pointer', fontSize: 12 }}>🍽️ Food</button>
+            <button onClick={() => { setCategory("Dessert"); playClickSound(); }} style={{ padding: "10px 4px", borderRadius: 12, border: "none", background: category === "Dessert" ? "#0d47a1" : "#ffffff", color: category === "Dessert" ? "#fff" : "#0d47a1", fontWeight: "bold", cursor: 'pointer', fontSize: 12 }}>🍰 Dessert</button>
+            <button onClick={() => { setCategory("SET"); playClickSound(); }} style={{ padding: "10px 4px", borderRadius: 12, border: "none", background: category === "SET" ? "#0d47a1" : "#ffffff", color: category === "SET" ? "#fff" : "#0d47a1", fontWeight: "bold", cursor: 'pointer', fontSize: 12 }}>🍱 SET</button>
+            <button onClick={() => { setCategory("Beverage"); playClickSound(); }} style={{ padding: "10px 4px", borderRadius: 12, border: "none", background: category === "Beverage" ? "#0d47a1" : "#ffffff", color: category === "Beverage" ? "#fff" : "#0d47a1", fontWeight: "bold", cursor: 'pointer', fontSize: 12 }}>🥤 Beverage</button>
           </div>
 
-          <input placeholder="🔍 ค้นหาเมนู..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #ddd", background: "#fff", boxSizing: "border-box" }} />
+          <input placeholder="🔍 ค้นหาเมนู..." value={search} onChange={(e) => setSearch(e.target.value)} style={{ width: "100%", padding: 12, borderRadius: 12, border: "1px solid #90caf9", background: "#fff", boxSizing: "border-box" }} />
 
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(160px, 1fr))", gap: 12, width: "100%" }}>
             {filtered.map((item) => (
-              <div key={item.id} style={{ background: "#fff", padding: 12, borderRadius: 12, border: "1px solid #eee", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", gap: 8, boxShadow: "0 2px 4px rgba(0,0,0,0.03)", boxSizing: "border-box", textAlign: "center" }}>
+              <div key={item.id} style={{ background: "#fff", padding: 12, borderRadius: 12, border: "1px solid #e0e0e0", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", gap: 8, boxShadow: "0 2px 6px rgba(13,71,161,0.08)", boxSizing: "border-box", textAlign: "center" }}>
                 <img src={item.imageUrl} style={{ width: 85, height: 85, objectFit: "cover", borderRadius: 8 }} alt={item.name.th} />
                 <div style={{ flex: 1, width: "100%" }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#333", display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden", textOverflow: "ellipsis", height: 36, lineHeight: "18px" }}>{item.name.th}</div>
@@ -211,7 +220,7 @@ const staticItems = [
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12, width: "100%" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", width: "100%" }}>
-            <span style={{ color: "#666", fontSize: 13 }}>รายการเบิกทั้งหมด ({orders.length})</span>
+            <span style={{ color: "#1565c0", fontSize: 13, fontWeight: "bold" }}>รายการเบิกทั้งหมด ({orders.length})</span>
             <button onClick={fetchOrders} style={{ background: "#0d47a1", color: "#fff", border: "none", padding: "5px 10px", borderRadius: 6, cursor: "pointer", fontSize: 11 }}>🔄 รีเฟรชข้อมูล</button>
           </div>
 

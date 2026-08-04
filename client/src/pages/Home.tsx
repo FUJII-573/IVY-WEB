@@ -43,8 +43,8 @@ export default function Home() {
     
     // 🍱 หมวด SET
     { id: 1011, category: "SET", name: { th: "GERMANY DESSERTS SET" }, unit: "SET", imageUrl: "https://i.postimg.cc/50kGyJhf/7-GERMANY-DESSERTS-SET.png", price: 600 },
-    { id: 1012, category: "SET", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://i.postimg.cc/d3kfTXFM/8-CHILLING-WITH-YOU.png", price: 1600 },
-    { id: 1013, category: "SET", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://i.postimg.cc/J0DFBg8C/9-ALL-SPECIAL-GERMAN-SET.png", price: 3500 },
+    { id: 1012, category: "SET", name: { th: "CHILLING WITH YOU" }, unit: "SET", imageUrl: "https://i.postimg.cc/d3kfTXFM/8-CHILLING-WITH-YOU.png", price: 1800 },
+    { id: 1013, category: "SET", name: { th: "ALL SPECIAL GERMAN SET" }, unit: "SET", imageUrl: "https://i.postimg.cc/J0DFBg8C/9-ALL-SPECIAL-GERMAN-SET.png", price: 3200 },
     
     // 🥤 หมวด Beverage
     { id: 2001, category: "Beverage", name: { th: "The Ivy : Apfelschorle - non alc." }, unit: "แก้ว", imageUrl: "https://i.postimg.cc/cCgz8jW1/10-Apfelschorle.png", price: 200 },

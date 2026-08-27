@@ -22,6 +22,7 @@ const playClickSound = () => {
 export default function Home() {
   const customEmployees = [
     "Clarvienne Althea Laforteza",
+    "Clair Fisker",
     "Renley Koji",
     "Maxim Alexandrovich Morozov",
     "Berry Butcher",
